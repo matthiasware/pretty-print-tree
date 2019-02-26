@@ -49,6 +49,27 @@ void print_preorder(Node *n, std::string ident)
   }
 }
 
+int calcTokenWidth(Node *n)
+{
+  int maxlength = maxtoken(n) + 2;
+  return maxlength;
+}
+
+std::string padToken(std::string token, int width)
+{
+  token = "(" + token + ")";
+  if(token.length() < width)
+  {
+    int diff = width - token.length();
+    int pad = diff / 2;
+    token = std::string(pad, ' ') + token + std::string(pad, ' ');
+    if(pad % 2 == 1)
+      token += " ";
+    // 1 2 3 4 5
+  }
+  return token;
+}
+
 
 int main() {
   Node root("a",
