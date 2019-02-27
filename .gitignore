@@ -4,3 +4,4 @@
 !*.cc
 !*.h
 !.gitignore
+!*.py

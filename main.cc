@@ -64,11 +64,11 @@ std::string padToken(std::string token, int width)
 
 
 int main() {
-  Node root("a",
-            new Node("b",
-                     new Node("c"),
-                     new Node("d")),
-            new Node("e", nullptr, new Node("g", new Node("h"))));
+  Node root("+",
+            new Node("*",
+                     new Node("x"),
+                     new Node("2")),
+            new Node("sin", nullptr, new Node("*", new Node("x"), new Node("4"))));
   Node *n = &root;
 
   // start algo
@@ -87,6 +87,7 @@ int main() {
     int node_distance = ((2 << (d - e + 1)) - 1) * token_abs_width;
 
     std::string line = std::string(ident, ' ');
+    std::string previous_line = "";
     std::vector<Node*> nodes_new;
 
     for(int i=0; i<nodes.size(); ++i)
@@ -94,9 +95,13 @@ int main() {
       std::string s = nodes[i]->name_;
       bool empty = (s == "") ? true : false;
       if(empty)
+      {
         s = std::string(token_abs_width, ' ');
+      }
       else
+      {
         s = "(" + padToken(s, token_width) + ")";
+      }
       line.append(s);
       line.append(std::string(node_distance, ' '));
       if(nodes[i]->left_)
