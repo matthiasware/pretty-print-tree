@@ -1,14 +1,15 @@
 import numpy as np
+import random
 
 
 class node:
-    def __init__(self, s="", left=None, right=None):
+    def __init__(self, s=0, left=None, right=None):
         self.s = s
         self.left = left
         self.right = right
 
     def __str__(self):
-        return self.s
+        return str(self.s)
 
     def __repr__(self):
         return self.__str__()
@@ -26,8 +27,35 @@ tree = node("1",
                       node("5"))))
 
 
+def name_inorder(node, n):
+    if(not node):
+        return n
+    n = name_inorder(node.left, n)
+    node.s = n
+    n = name_inorder(node.right, n + 1)
+    return n
+
+
+def create_nodes(maxdepth, n):
+    if maxdepth < 0 or random.random() < 0.3:
+        return None, 0
+    n2 = node()
+    n2.left, n_nodes_left = create_nodes(maxdepth - 1, n)
+    n2.s = n_nodes_left + 1 if n2.left else n
+    n2.right, n_nodes_right = create_nodes(maxdepth - 1, n2.s + 1)
+    return n2, max(n_nodes_right, n2.s)
+
+
+def create_tree(maxdepth=3):
+    root = node()
+    root.left, n_nodes_left = create_nodes(maxdepth - 1, 0)
+    root.s = n_nodes_left + 1 if root.left else 0
+    root.right, n_nodes_right = create_nodes(maxdepth - 1, root.s + 1)
+    return root
+
+
 # tree = node("1", node("0"), node("3", node("2")))
-# tree = node("1", node("0"), node("2", None, node("3")))
+tree = node("1", node("0"), node("2", None, node("3")))
 
 
 def pinorder(node):
@@ -78,11 +106,15 @@ def compress_singeltons(node, nodes, xy, delta=0):
         node_coords[0] = node_left_coords[0]
         delta += 1
     elif node.right and not node.left:
-        node_right_coords = xy[nodes[node.right.s]]
-        node_coords[0] = node_right_coords[0] - 1
         delta += 1
+        node_right_coords = xy[nodes[node.right.s]]
+        node_coords[0] = node_right_coords[0]
     delta = compress_singeltons(node.right, nodes, xy, delta)
     return delta
+
+
+def compress_rows(node, nodes, xy, delta=0):
+    pass
 
 
 def print_coords(nodes, xy):
@@ -96,14 +128,23 @@ def print_coords(nodes, xy):
         image[node_y, node_x] = node
     print("".join([l.tostring().decode("utf-8") + "\n" for l in image]))
 
+# REBALANCE TREE ?
+
 
 if __name__ == "__main__":
-    pinorder(tree)
-    print("**** BUILD COORDINATES ***")
-    xy, nodes = init_coordinates(tree)
-    print(xy)
-    print(nodes)
+    random.seed(6)
+    # pinorder(tree)
+    # print("**** BUILD COORDINATES ***")
+    # xy, nodes = init_coordinates(tree)
+    # print(xy)
+    # print(nodes)
+    # print_coords(nodes, xy)
+    # print("*** COMPRESS SINGELTONS***")
+    # compress_singeltons(tree, nodes, xy)
+    # print_coords(nodes, xy)
+    root = create_tree(3)
+    xy, nodes = init_coordinates(root)
     print_coords(nodes, xy)
-    print("*** COMPRESS ***")
-    compress_singeltons(tree, nodes, xy)
+    compress_singeltons(root, nodes, xy)
     print_coords(nodes, xy)
+    # pinorder(tree)
