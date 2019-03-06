@@ -77,16 +77,16 @@ def create_nodes(maxdepth, n):
         return None, 0
     node = Node()
     node.left, n_left = create_nodes(maxdepth - 1, n)
-    node.token = n_left + 1 if node.left else n
-    node.right, n_right = create_nodes(maxdepth - 1, node.token + 1)
-    return node, max(n_right, node.token)
+    node.token = str(n_left + 1) if node.left else str(n)
+    node.right, n_right = create_nodes(maxdepth - 1, int(node.token) + 1)
+    return node, max(n_right, int(node.token))
 
 
 def random_tree(maxdepth=3):
     root = Node()
     root.left, n_left = create_nodes(maxdepth - 1, 0)
-    root.token = n_left + 1 if root.left else 0
-    root.right, n_right = create_nodes(maxdepth - 1, root.token + 1)
+    root.token = str(n_left + 1) if root.left else str(0)
+    root.right, n_right = create_nodes(maxdepth - 1, int(root.token) + 1)
     return root
 
 
@@ -96,36 +96,6 @@ def pinorder(node):
     pinorder(node.left)
     print(node.token)
     pinorder(node.right)
-
-
-def setup_datastructures_2(node, nodes=None, xy=None, h=0):
-    if nodes is None:
-        nodes = {}
-    if xy is None:
-        xy = []
-    if not node:
-        return
-    setup_datastructures(node.left, nodes, xy, h + 1)
-    xy.append([len(xy), h])
-    nodes[node.token] = len(xy) - 1
-    print(node.token, "=", "(", len(xy) - 1, h, ")")
-    setup_datastructures(node.right, nodes, xy, h + 1)
-    return xy, nodes
-
-
-def setup_datastructures2(node, nodes=None, xy=None, h=0):
-    if nodes is None:
-        nodes = {}
-    if xy is None:
-        xy = []
-    if not node:
-        return
-    setup_datastructures2(node.left, nodes, xy, h + 1)
-    xy.append([len(xy), h])
-    nodes[node.token] = len(xy) - 1
-    print(node.token, "=", "(", len(xy) - 1, h, ")")
-    setup_datastructures2(node.right, nodes, xy, h + 1)
-    return xy, nodes
 
 
 def setup_datastructures(node, ds=None, height=0, n_nodes=0):
@@ -147,15 +117,20 @@ def draw_arms(node, ds, image):
     if node.left:
         x_left = ds.x[node.left.token]
         diff = x - x_left
-        for i in range(diff):
-            image[y, x_left + i] = "-"
+        if diff == 0:
+            image[y, x_left + len(name) // 2 - 1] = "|"
+        else:
+            for i in range(diff):
+                image[y, x_left + i] = "-"
         draw_arms(node.left, ds, image)
     if node.right:
-        print(node.right.token)
         x_right = ds.x[node.right.token]
         diff = x_right - x
-        for i in range(diff):
-            image[y, x + len(name) + i] = "-"
+        if diff == 0:
+            image[y, x_right + len(name) // 2 + 1] = "|"
+        else:
+            for i in range(diff):
+                image[y, x + len(name) + i] = "-"
         draw_arms(node.right, ds, image)
 
 
@@ -182,8 +157,12 @@ def compress_singeltons(node, ds, delta=0):
         ds.x[node.token] = ds.x[node.left.token]
         delta += 1
     elif node.right and not node.left:
+        print(node.token)
         delta += 1
-    delta = compress_singeltons(node.right, ds, delta)
+        delta = compress_singeltons(node.right, ds, delta)
+        ds.x[node.token] = ds.x[node.right.token]
+    else:
+        delta = compress_singeltons(node.right, ds, delta)
     return delta
 
 
@@ -224,9 +203,21 @@ tree4 = Node("*",
                        Node("y"))))
 
 
+def rename(node):
+    if not node:
+        return
+    node.left = None
+    node.right = None
+    node.token = None
+    rename(node.left)
+    rename(node.right)
+
+
 if __name__ == "__main__":
+    # random.seed(10)
     tree = tree4
-    pinorder(tree)
+    # tree = random_tree(8)
+    # pinorder(tree)
     ds, _ = setup_datastructures(tree)
     compress_singeltons(tree, ds)
     print_tree(tree, ds)
