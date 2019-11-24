@@ -14,6 +14,13 @@ class Node:
     def __repr__(self):
         return self.__str__()
 
+    def __len__(self):
+        l = 0
+        if self.left is not None:
+            l = self.left.__len__()
+        if self.right is not None:
+            r = self.right.__len()
+        return 1 + l + r
 
 class DS:
     def __init__(self):
